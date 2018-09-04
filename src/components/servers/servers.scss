@@ -1,0 +1,70 @@
+@import "../../variable.scss";
+
+.servers {
+  background: $background-dark;
+  color: white;
+  padding: 30px;
+  max-width: 100vw;
+  display: grid;
+  grid-template-rows: 50px 1fr;
+  height: 100vh;
+}
+
+.servers-header {
+  letter-spacing: 1px;
+  font-size: 20px;
+}
+
+.servers-canvas-wrapper {
+  overflow: scroll;
+  padding-bottom: 100px;
+}
+
+.servers-canvas {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 20px;
+  margin-top: 30px;
+  overflow: scroll;
+}
+
+.server {
+  background: $background-light;
+  height: 150px;
+  border-radius: 5px;
+  display: flex;
+}
+
+.app-box {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border-radius: 5px;
+
+  &:nth-child(2) {
+    margin-left: 5px;
+  }
+
+  @each $i, $color in $primary-color {
+    &.app-box-#{$i} {
+      background: linear-gradient(
+        125deg,
+        nth($secondary-color, $i) 0%,
+        $color 100%
+      );
+    }
+  }
+
+  .app-code {
+    font-size: 20px;
+    text-transform: capitalize;
+  }
+
+  .app-name {
+    font-size: 14px;
+    margin-top: 15px;
+  }
+}

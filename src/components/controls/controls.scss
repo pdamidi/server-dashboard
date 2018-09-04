@@ -1,0 +1,49 @@
+@import "../../variable.scss";
+
+.add-button,
+.delete-button {
+  width: 40px;
+  height: 40px;
+  font-size: 35px;
+  text-align: center;
+  margin-bottom: 15px;
+  border-radius: 50%;
+  border: 1px solid white;
+  line-height: 40px;
+  cursor: pointer;
+
+  &.small {
+    width: 20px;
+    height: 20px;
+    font-size: 15px;
+    line-height: 20px;
+    display: inline-block;
+    margin: 0;
+  }
+}
+
+.add-button {
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.delete-button {
+  line-height: 70px;
+
+  &.small {
+    line-height: 35px;
+  }
+
+  &:not(.disable) {
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  &.disable {
+    cursor: default;
+    color: $disable-button;
+    border-color: $disable-button;
+  }
+}
