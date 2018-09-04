@@ -54,11 +54,11 @@ export class AppProvider extends Component {
   state = {
     availableApps: availableApps,
     servers: servers,
-    latestAppServer: {}
+    latestAppServer: {},
+    lastServer: null
   };
 
   addServer = index => {
-    console.log("add server");
     this.setState(prevState => ({
       servers: prevState.servers.concat([
         {
@@ -70,25 +70,27 @@ export class AppProvider extends Component {
   };
 
   removeServer = () => {
-    const { servers } = this.state;
-    const lastServer = { ...servers[servers.length - 1] };
+    const lastServer = this.state.servers.slice(-1)[0];
 
-    console.log("lastServer", lastServer);
+    if (!lastServer) return;
 
-    if (lastServer.hasOwnProperty("apps")) {
-      lastServer.apps.forEach(app => {
-        this.deleteLatestAppServer(app);
-        this.addApp(app);
-      });
-    }
+    lastServer.apps.forEach(app => {
+      const newState = this.state.latestAppServer[app.id].filter(
+        id => id !== lastServer.id
+      );
 
-    this.setState(prevState => ({
-      servers: prevState.servers.slice(0, -1)
-    }));
+      this.setState(prevState => ({
+        latestAppServer: { ...prevState.latestAppServer, [app.id]: newState }
+      }));
+    });
+
+    this.setState({
+      servers: this.state.servers.slice(0, -1),
+      lastServer: lastServer
+    });
   };
 
-  getIndex = () => {
-    const { servers } = this.state;
+  getIndex = servers => {
     // getting the index of the server that has zero apps
     const fisrtIndex = servers.findIndex(server => server.apps.length === 0);
     if (fisrtIndex !== -1) {
@@ -124,21 +126,23 @@ export class AppProvider extends Component {
     }));
   };
 
-  addNewServerState = (prevState, serverIndex, appObj) => {
-    const { servers } = prevState;
-    const newAppObj = [appObj, ...servers[serverIndex].apps];
-    return [
-      ...servers.slice(0, serverIndex),
-      { ...servers[serverIndex], apps: newAppObj },
-      ...servers.slice(serverIndex + 1)
-    ];
+  reOrg = apps => {
+    if (apps.length || this.state.lastServer.apps.length) {
+      this.addApp(apps[0]);
+      this.setState({
+        lastServer: {
+          ...this.state.lastServer,
+          apps: this.state.lastServer.apps.slice(1)
+        }
+      });
+    }
   };
 
   addApp = appObj => {
-    console.log("addApp");
-    const serverIndex = this.getIndex();
+    const serverIndex = this.getIndex(this.state.servers);
     //don't add more apps when there aren't any servers
-    if (serverIndex === -1) return;
+
+    if (serverIndex === -1 || !appObj) return;
 
     const { servers } = this.state;
     const newAppObj = [appObj, ...servers[serverIndex].apps];
@@ -171,9 +175,7 @@ export class AppProvider extends Component {
       s => s.id === latestAppServerId
     );
 
-    //HACK -- revist
     if (!latestServer) {
-      this.deleteLatestAppServer(appObj);
       return;
     }
 
@@ -200,8 +202,6 @@ export class AppProvider extends Component {
   };
 
   render() {
-    console.log(this.state.servers, this.state.latestAppServer);
-
     return (
       <AppContext.Provider
         value={{
@@ -209,7 +209,8 @@ export class AppProvider extends Component {
           addServer: this.addServer,
           removeServer: this.removeServer,
           addApp: this.addApp,
-          deleteApp: this.deleteApp
+          deleteApp: this.deleteApp,
+          reOrg: this.reOrg
         }}
       >
         {this.props.children}

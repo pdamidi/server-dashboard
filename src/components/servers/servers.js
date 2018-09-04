@@ -26,6 +26,11 @@ ServerApps.propTypes = {
 };
 
 class Servers extends Component {
+  static propTypes = {
+    servers: PropTypes.array.isRequired,
+    availableApps: PropTypes.array.isRequired
+  };
+
   constructor(props) {
     super(props);
     this.myRef = React.createRef();
@@ -37,10 +42,22 @@ class Servers extends Component {
       node.scrollTop + node.clientHeight + 150 >= node.scrollHeight;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     if (this.shouldScrollBottom) {
       const node = this.myRef.current;
       node.scrollTop = node.scrollHeight;
+    }
+    if (prevProps.servers.length > this.props.servers.length) {
+      //kill server
+      this.props.reOrg(this.props.lastServer.apps);
+    }
+
+    if (
+      prevProps.lastServer &&
+      prevProps.lastServer !== this.props.lastServer &&
+      prevProps.lastServer.apps.length !== this.props.lastServer.apps.length
+    ) {
+      this.props.addApp(this.props.lastServer.apps[0]);
     }
   }
 
